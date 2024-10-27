@@ -86,7 +86,7 @@ func TestHandleActivateUser_InvalidToken(t *testing.T) {
 }
 
 func TestHandleActivateUser_ActivationError(t *testing.T) {
-	// Create a mock repository and state
+	// Initialize the necessary components
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
 	if err != nil {
@@ -98,7 +98,7 @@ func TestHandleActivateUser_ActivationError(t *testing.T) {
 
 	// Create a valid JWT token for testing
 	userID := "b7358195-6291-4138-b115-2a046fe848f1"
-	claims := utils.Claims{UserID: uuid.FromStringOrNil(userID)} // Convert to UUID
+	claims := utils.Claims{UserID: uuid.FromStringOrNil(userID)}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, _ := token.SignedString([]byte(cfg.SecretKey))
 
@@ -113,9 +113,9 @@ func TestHandleActivateUser_ActivationError(t *testing.T) {
 	handler := httpserver.HandleActivateUser(appState)
 	handler(w, req)
 
-	// Check the response status code
+	// Check the response status code and body
 	assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
-	assert.Contains(t, w.Body.String(), "Error activating user")
+	assert.Contains(t, w.Body.String(), "Internal server error")
 
 	// Verify that the mock repository method was called
 	mockRepo.AssertCalled(t, "ActivateUserByID", mock.Anything, claims.UserID)

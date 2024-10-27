@@ -36,7 +36,7 @@ func TestDeleteContactHandler(t *testing.T) {
 
 		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
+		assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Invalid contact ID")
 	})
 
@@ -50,7 +50,7 @@ func TestDeleteContactHandler(t *testing.T) {
 		r.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
-		assert.Contains(t, w.Body.String(), "Contact not found")
+		assert.Contains(t, w.Body.String(), "Contact Not found")
 	})
 
 	t.Run("Deletion Failed", func(t *testing.T) {
@@ -63,7 +63,7 @@ func TestDeleteContactHandler(t *testing.T) {
 		r.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
-		assert.Contains(t, w.Body.String(), "Failed to delete contact")
+		assert.Contains(t, w.Body.String(), "Internal server error")
 	})
 
 	t.Run("Successful Deletion", func(t *testing.T) {

@@ -9,9 +9,7 @@ import (
 )
 
 func HandleActivateUser(app *state.State) http.HandlerFunc {
-
 	return func(w http.ResponseWriter, req *http.Request) {
-
 		tokenString := req.URL.Query().Get("token")
 		ctx := req.Context()
 
@@ -39,7 +37,6 @@ func HandleActivateUser(app *state.State) http.HandlerFunc {
 		}
 
 		userID := claims.UserID
-
 		err = app.Repository.ActivateUserByID(ctx, userID)
 		if err != nil {
 			app.Logger.PrintError(err, map[string]string{
@@ -48,8 +45,7 @@ func HandleActivateUser(app *state.State) http.HandlerFunc {
 			_ = InternalError.WriteToResponse(w, nil)
 			return
 		}
-		_ = UserActivated.WriteToResponse(w, nil)
-		return
 
+		_ = UserActivated.WriteToResponse(w, nil)
 	}
 }

@@ -19,7 +19,7 @@ func HandlerDeleteContactByID(app *state.State) http.HandlerFunc {
 			app.Logger.PrintError(err, map[string]string{
 				"context": "Error parsing contact ID",
 			})
-			_ = InternalError.WriteToResponse(w, nil)
+			_ = InvalidId.WriteToResponse(w, nil)
 			return
 		}
 
@@ -31,7 +31,7 @@ func HandlerDeleteContactByID(app *state.State) http.HandlerFunc {
 				app.Logger.PrintError(err, map[string]string{
 					"context": "Contact not found",
 				})
-				_ = InternalError.WriteToResponse(w, nil)
+				_ = NotFound.WriteToResponse(w, nil)
 
 			} else {
 				app.Logger.PrintError(err, map[string]string{

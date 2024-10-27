@@ -19,7 +19,7 @@ func HandlerGetContactByID(app *state.State) http.HandlerFunc {
 			app.Logger.PrintError(err, map[string]string{
 				"context": "Error creating contact",
 			})
-			_ = InternalError.WriteToResponse(w, nil)
+			_ = InvalidId.WriteToResponse(w, nil)
 			return
 		}
 		ctx := req.Context()

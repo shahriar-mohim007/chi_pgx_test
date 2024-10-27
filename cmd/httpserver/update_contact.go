@@ -19,7 +19,7 @@ func HandlerPatchContactByID(app *state.State) http.HandlerFunc {
 			app.Logger.PrintError(err, map[string]string{
 				"context": "Error parsing contact ID",
 			})
-			_ = InternalError.WriteToResponse(w, nil)
+			_ = InvalidId.WriteToResponse(w, nil)
 			return
 		}
 		ctx := req.Context()

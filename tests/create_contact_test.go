@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go_chi_pgx/cmd/httpserver"
@@ -17,34 +15,21 @@ import (
 	"testing"
 )
 
-// Sample contact request payload
-type ContactRequestPayload struct {
-	Phone   string `json:"phone"`
-	Street  string `json:"street"`
-	City    string `json:"city"`
-	State   string `json:"state"`
-	ZipCode string `json:"zip_code"`
-	Country string `json:"country"`
-}
-
 func TestCreateContactHandler_Success(t *testing.T) {
-	// Create a mock repository
-	cfg, err := state.NewConfig()
-	logger := state.New(os.Stdout, state.LevelInfo)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Config parsing failed")
-	}
-	logLevel, err := zerolog.ParseLevel(cfg.LogLevel)
 
+	logger := state.New(os.Stdout, state.LevelInfo)
+	cfg, err := state.NewConfig()
 	if err != nil {
-		logLevel = zerolog.DebugLevel
+		logger.PrintError(err, map[string]string{
+			"context": "Error loading env value",
+		})
 	}
-	zerolog.SetGlobalLevel(logLevel)
+
 	mockRepo := new(mocks.MockRepository)
 	appState := state.NewState(cfg, mockRepo, logger)
 
 	// Create a sample valid request payload
-	requestPayload := ContactRequestPayload{
+	requestPayload := httpserver.ContactRequestPayload{
 		Phone:   "1234567890",
 		Street:  "123 Test St",
 		City:    "Test City",
@@ -79,14 +64,11 @@ func TestCreateContactHandler_InvalidPayload(t *testing.T) {
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
 	if err != nil {
-		log.Fatal().Err(err).Msg("Config parsing failed")
+		logger.PrintError(err, map[string]string{
+			"context": "Error loading env value",
+		})
 	}
-	logLevel, err := zerolog.ParseLevel(cfg.LogLevel)
 
-	if err != nil {
-		logLevel = zerolog.DebugLevel
-	}
-	zerolog.SetGlobalLevel(logLevel)
 	mockRepo := new(mocks.MockRepository)
 	appState := state.NewState(cfg, mockRepo, logger)
 

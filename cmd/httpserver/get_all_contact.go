@@ -36,7 +36,7 @@ func HandlerGetAllContacts(app *state.State) http.HandlerFunc {
 			app.Logger.PrintError(err, map[string]string{
 				"Context": "Error parsing UUID",
 			})
-			_ = InternalError.WriteToResponse(w, nil)
+			_ = InvalidUserId.WriteToResponse(w, nil)
 			return
 		}
 

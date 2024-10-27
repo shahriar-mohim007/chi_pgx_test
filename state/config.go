@@ -6,7 +6,7 @@ import (
 
 type Config struct {
 	ApplicationPort int     `env:"APPLICATION_PORT" envDefault:""`
-	DatabaseUrl     string  `env:"DATABASE_URL" envDefault:"postgres://postgres:postgres@localhost:5432/contacts?sslmode=disable"`
+	DatabaseUrl     string  `env:"DATABASE_URL" envDefault:""`
 	LogLevel        string  `env:"LOG_LEVEL" envDefault:"debug"`
 	SecretKey       string  `env:"SECRET_KEY" envDefault:"my_jwt_secret"`
 	Rps             float64 `env:"limiter_rps" envDefault:"0"`

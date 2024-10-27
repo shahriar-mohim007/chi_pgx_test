@@ -17,7 +17,7 @@ import (
 )
 
 func TestDeleteContactHandler(t *testing.T) {
-	// Create a mock repository and state
+
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
 	if err != nil {
@@ -26,7 +26,6 @@ func TestDeleteContactHandler(t *testing.T) {
 	mockRepo := new(mocks.MockRepository)
 	appState := state.NewState(cfg, mockRepo, logger)
 
-	// Create a new router for handling requests
 	r := chi.NewRouter()
 	r.Delete("/contacts/{id}", httpserver.HandlerDeleteContactByID(appState))
 
@@ -41,7 +40,7 @@ func TestDeleteContactHandler(t *testing.T) {
 	})
 
 	t.Run("Contact Not Found", func(t *testing.T) {
-		contactID, _ := uuid.NewV4() // Generate a new UUID
+		contactID, _ := uuid.NewV4()
 		mockRepo.On("DeleteContactByID", mock.Anything, contactID).Return(sql.ErrNoRows)
 
 		req := httptest.NewRequest(http.MethodDelete, "/contacts/"+contactID.String(), nil)
@@ -54,7 +53,7 @@ func TestDeleteContactHandler(t *testing.T) {
 	})
 
 	t.Run("Deletion Failed", func(t *testing.T) {
-		contactID, _ := uuid.NewV4() // Generate a new UUID
+		contactID, _ := uuid.NewV4()
 		mockRepo.On("DeleteContactByID", mock.Anything, contactID).Return(errors.New("db error"))
 
 		req := httptest.NewRequest(http.MethodDelete, "/contacts/"+contactID.String(), nil)
@@ -67,7 +66,7 @@ func TestDeleteContactHandler(t *testing.T) {
 	})
 
 	t.Run("Successful Deletion", func(t *testing.T) {
-		contactID, _ := uuid.NewV4() // Generate a new UUID
+		contactID, _ := uuid.NewV4()
 		mockRepo.On("DeleteContactByID", mock.Anything, contactID).Return(nil)
 
 		req := httptest.NewRequest(http.MethodDelete, "/contacts/"+contactID.String(), nil)
@@ -76,7 +75,7 @@ func TestDeleteContactHandler(t *testing.T) {
 		r.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusNoContent, w.Result().StatusCode)
-		assert.Empty(t, w.Body.String()) // Ensure the body is empty
+		assert.Empty(t, w.Body.String())
 		mockRepo.AssertCalled(t, "DeleteContactByID", mock.Anything, contactID)
 	})
 }

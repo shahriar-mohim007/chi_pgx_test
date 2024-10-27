@@ -40,7 +40,7 @@ type ContactResponse struct {
 }
 
 func TestGetAllContactsHandler(t *testing.T) {
-	// Create a mock repository and state
+
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
 	if err != nil {
@@ -49,15 +49,13 @@ func TestGetAllContactsHandler(t *testing.T) {
 	mockRepo := new(mocks.MockRepository)
 	appState := state.NewState(cfg, mockRepo, logger)
 
-	// Create a new router for handling requests
 	r := chi.NewRouter()
 	r.Get("/contacts", httpserver.HandlerGetAllContacts(appState))
 
-	// Mock user ID for context
 	userID := uuid.Must(uuid.NewV4()).String()
 
 	t.Run("Successful Fetch", func(t *testing.T) {
-		// Mocking repository behavior
+
 		contactID, _ := uuid.NewV4()
 		contacts := []repository.Contact{
 			{
@@ -76,24 +74,20 @@ func TestGetAllContactsHandler(t *testing.T) {
 		mockRepo.On("GetAllContacts", mock.Anything, mock.AnythingOfType("uuid.UUID"), 10, 0).Return(contacts, nil)
 		mockRepo.On("GetContactsCount", mock.Anything, mock.AnythingOfType("uuid.UUID")).Return(totalCount, nil)
 
-		// Create the request and add the context with the user ID
 		req := httptest.NewRequest(http.MethodGet, "/contacts?limit=10&offset=0", nil)
-		req = req.WithContext(context.WithValue(req.Context(), "userid", userID)) // Ensure the correct user ID is set
+		req = req.WithContext(context.WithValue(req.Context(), "userid", userID))
 		w := httptest.NewRecorder()
 
-		// Serve the HTTP request
 		r.ServeHTTP(w, req)
 
-		// Assertions
 		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
 
 		var response ContactsResponse
-		err := json.NewDecoder(w.Body).Decode(&response)
+		err = json.NewDecoder(w.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.Equal(t, totalCount, response.Data.TotalCount)
 		assert.Len(t, response.Data.Contacts, len(contacts))
-		//
-		//// Check the structure of the returned contact
+
 		assert.Equal(t, contactID.String(), response.Data.Contacts[0].ID)
 		assert.Equal(t, "123-456-7890", response.Data.Contacts[0].Phone)
 		assert.Equal(t, "123 Main St", response.Data.Contacts[0].Street)
@@ -102,7 +96,6 @@ func TestGetAllContactsHandler(t *testing.T) {
 		assert.Equal(t, "12345", response.Data.Contacts[0].ZipCode)
 		assert.Equal(t, "Sample Country", response.Data.Contacts[0].Country)
 
-		// Check pagination URLs
 		assert.Equal(t, "", response.Data.Next)     // No next URL as there is only one contact
 		assert.Equal(t, "", response.Data.Previous) // No previous URL since offset is 0
 
@@ -111,13 +104,13 @@ func TestGetAllContactsHandler(t *testing.T) {
 
 	t.Run("Error Parsing UUID", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/contacts", nil)
-		req = req.WithContext(context.WithValue(req.Context(), "userid", "invalid-uuid")) // Invalid UUID
+		req = req.WithContext(context.WithValue(req.Context(), "userid", "invalid-uuid"))
 		w := httptest.NewRecorder()
 
 		r.ServeHTTP(w, req)
 
-		assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
-		assert.Contains(t, w.Body.String(), "Internal server error")
+		assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
+		assert.Contains(t, w.Body.String(), "Invalid user ID")
 	})
 
 	t.Run("No Contacts Found", func(t *testing.T) {

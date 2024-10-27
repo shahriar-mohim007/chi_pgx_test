@@ -18,7 +18,7 @@ import (
 )
 
 func TestGetContactByIDHandler(t *testing.T) {
-	// Setup shared components
+
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
 	if err != nil {
@@ -27,7 +27,6 @@ func TestGetContactByIDHandler(t *testing.T) {
 	mockRepo := new(mocks.MockRepository)
 	appState := state.NewState(cfg, mockRepo, logger)
 
-	// Initialize the chi router with the route
 	r := chi.NewRouter()
 	r.Get("/contacts/{id}", httpserver.HandlerGetContactByID(appState))
 
@@ -48,13 +47,11 @@ func TestGetContactByIDHandler(t *testing.T) {
 		// Mock repository behavior to return ContactWithUserResponse type
 		mockRepo.On("GetContactByID", mock.Anything, contactID).Return(mockContact, nil)
 
-		// Prepare request and response recorder
 		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/contacts/%s", contactID), nil)
 		w := httptest.NewRecorder()
 
 		r.ServeHTTP(w, req)
 
-		// Assert status and optional body content
 		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
 		mockRepo.AssertExpectations(t)
 	})

@@ -26,6 +26,10 @@ var InvalidId = utilis.ResponseState{
 	StatusCode: http.StatusBadRequest,
 	Message:    "Invalid contact ID",
 }
+var InvalidUserId = utilis.ResponseState{
+	StatusCode: http.StatusBadRequest,
+	Message:    "Invalid user ID",
+}
 var InternalError = utilis.ResponseState{
 	StatusCode: http.StatusInternalServerError,
 	Message:    "Internal server error",

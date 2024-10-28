@@ -150,7 +150,7 @@ func (repo *PgxRepository) GetContactByID(ctx context.Context, contactID uuid.UU
 	return &response, nil
 }
 
-func (repo *PgxRepository) PatchContact(ctx context.Context, contactID uuid.UUID, contact *Contact) error {
+func (repo *PgxRepository) PatchContactByID(ctx context.Context, contactID uuid.UUID, contact *Contact) error {
 
 	var queryParts []string
 	var args []interface{}

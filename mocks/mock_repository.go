@@ -49,7 +49,7 @@ func (m *MockRepository) GetContactByID(ctx context.Context, contactID uuid.UUID
 	return nil, args.Error(1)
 }
 
-func (m *MockRepository) PatchContact(ctx context.Context, contactID uuid.UUID, contact *repository.Contact) error {
+func (m *MockRepository) PatchContactByID(ctx context.Context, contactID uuid.UUID, contact *repository.Contact) error {
 	args := m.Called(ctx, contactID, contact)
 	return args.Error(0)
 }

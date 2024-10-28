@@ -14,7 +14,7 @@ type Repository interface {
 	GetAllContacts(ctx context.Context, userID uuid.UUID, limit, offset int) ([]Contact, error)
 	CreateContact(ctx context.Context, contact *Contact) error
 	GetContactByID(ctx context.Context, contactID uuid.UUID) (*ContactWithUserResponse, error)
-	PatchContact(ctx context.Context, contactID uuid.UUID, contact *Contact) error
+	PatchContactByID(ctx context.Context, contactID uuid.UUID, contact *Contact) error
 	DeleteContactByID(ctx context.Context, contactID uuid.UUID) error
 	GetContactsCount(ctx context.Context, userID uuid.UUID) (int, error)
 }

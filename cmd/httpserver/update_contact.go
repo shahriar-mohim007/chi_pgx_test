@@ -24,12 +24,6 @@ func HandlerPatchContactByID(app *state.State) http.HandlerFunc {
 		}
 		ctx := req.Context()
 
-		contact, err := app.Repository.GetContactByID(ctx, uuidContactID)
-		if err != nil {
-			_ = NotFound.WriteToResponse(w, nil)
-			return
-		}
-
 		requestPayload := ContactRequestPayload{}
 		err = json.NewDecoder(req.Body).Decode(&requestPayload)
 		if err != nil {
@@ -37,6 +31,12 @@ func HandlerPatchContactByID(app *state.State) http.HandlerFunc {
 				"context": "Invalid JSON",
 			})
 			_ = ValidDataNotFound.WriteToResponse(w, nil)
+			return
+		}
+
+		contact, err := app.Repository.GetContactByID(ctx, uuidContactID)
+		if err != nil {
+			_ = NotFound.WriteToResponse(w, nil)
 			return
 		}
 
@@ -68,7 +68,7 @@ func HandlerPatchContactByID(app *state.State) http.HandlerFunc {
 			Country: contact.Country,
 		}
 
-		err = app.Repository.PatchContact(ctx, uuidContactID, &updatedContact)
+		err = app.Repository.PatchContactByID(ctx, uuidContactID, &updatedContact)
 		if err != nil {
 			_ = InternalError.WriteToResponse(w, err)
 			return

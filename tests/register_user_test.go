@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -42,11 +43,6 @@ func TestHandleRegisterUser(t *testing.T) {
 		Email:    "john.doe@example.com",
 		Password: "securepassword",
 	}
-	//
-	//// Mock the utils.HashPassword function
-	//utils.HashPassword = func(password string) (string, error) {
-	//	return "hashedPassword", nil
-	//}
 
 	t.Run("Successful Registration", func(t *testing.T) {
 
@@ -68,55 +64,35 @@ func TestHandleRegisterUser(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-	//t.Run("Invalid JSON", func(t *testing.T) {
-	//	req := httptest.NewRequest(http.MethodPost, "/register", bytes.NewBuffer([]byte("invalid json")))
-	//	w := httptest.NewRecorder()
-	//
-	//	http.HandlerFunc(HandleRegisterUser(appState)).ServeHTTP(w, req)
-	//
-	//	assert.Equal(t, http.StatusBadRequest, w.Code)
-	//})
-	//
-	//t.Run("User Already Exists", func(t *testing.T) {
-	//	mockRepo.On("GetUserByEmail", mock.Anything, validRequest.Email).Return(&repository.User{}, nil)
-	//
-	//	payload, _ := json.Marshal(validRequest)
-	//	req := httptest.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(payload))
-	//	w := httptest.NewRecorder()
-	//
-	//	http.HandlerFunc(HandleRegisterUser(appState)).ServeHTTP(w, req)
-	//
-	//	assert.Equal(t, http.StatusConflict, w.Code)
-	//})
-	//
-	//t.Run("Failed to Hash Password", func(t *testing.T) {
-	//	utils.HashPassword = func(password string) (string, error) {
-	//		return "", fmt.Errorf("hashing error")
-	//	}
-	//
-	//	mockRepo.On("GetUserByEmail", mock.Anything, validRequest.Email).Return(nil, sql.ErrNoRows)
-	//
-	//	payload, _ := json.Marshal(validRequest)
-	//	req := httptest.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(payload))
-	//	w := httptest.NewRecorder()
-	//
-	//	http.HandlerFunc(HandleRegisterUser(appState)).ServeHTTP(w, req)
-	//
-	//	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	//})
-	//
-	//t.Run("Failed to Create User", func(t *testing.T) {
-	//	mockRepo.On("GetUserByEmail", mock.Anything, validRequest.Email).Return(nil, sql.ErrNoRows)
-	//	mockRepo.On("CreateUser", mock.Anything, mock.AnythingOfType("*repository.User")).Return(fmt.Errorf("creation error"))
-	//
-	//	payload, _ := json.Marshal(validRequest)
-	//	req := httptest.NewRequest(http.MethodPost, "/register", bytes.NewBuffer(payload))
-	//	w := httptest.NewRecorder()
-	//
-	//	http.HandlerFunc(HandleRegisterUser(appState)).ServeHTTP(w, req)
-	//
-	//	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	//})
+	t.Run("Invalid JSON", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodPost, "/users", bytes.NewBuffer([]byte("invalid json")))
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Contains(t, w.Body.String(), "The provided information is invalid. Please recheck and try again.")
+	})
 
-	// Add more tests as needed...
+	t.Run("User Already Exists", func(t *testing.T) {
+		mockRepo.On("GetUserByEmail", mock.Anything, validRequest.Email).Return(&repository.User{}, nil)
+
+		payload, _ := json.Marshal(validRequest)
+		req := httptest.NewRequest(http.MethodPost, "/users", bytes.NewBuffer(payload))
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Contains(t, w.Body.String(), "User Already Exist With this Email")
+	})
+
+	t.Run("Failed to Create User", func(t *testing.T) {
+		mockRepo.On("GetUserByEmail", mock.Anything, validRequest.Email).Return((*repository.User)(nil), sql.ErrNoRows)
+		mockRepo.On("CreateUser", mock.Anything, mock.AnythingOfType("*repository.User")).Return(fmt.Errorf("creation error"))
+
+		payload, _ := json.Marshal(validRequest)
+		req := httptest.NewRequest(http.MethodPost, "/users", bytes.NewBuffer(payload))
+		w := httptest.NewRecorder()
+
+		r.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+	})
 }

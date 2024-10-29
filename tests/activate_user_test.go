@@ -16,7 +16,7 @@ import (
 	"testing"
 )
 
-func Test_HandleActivateUser_Success(t *testing.T) {
+func TestHandleActivateUser_Success(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()

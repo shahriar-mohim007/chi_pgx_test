@@ -17,7 +17,7 @@ import (
 	"testing"
 )
 
-func Test_GetContactByIDHandler(t *testing.T) {
+func TestGetContactByIDHandler(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()

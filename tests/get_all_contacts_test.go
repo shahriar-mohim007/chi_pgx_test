@@ -39,7 +39,7 @@ type ContactResponse struct {
 	Country string `json:"country"`
 }
 
-func Test_GetAllContactsHandler(t *testing.T) {
+func TestGetAllContactsHandler(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()

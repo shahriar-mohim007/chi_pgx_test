@@ -21,7 +21,7 @@ type LoginResponse struct {
 	Data    httpserver.LoginResponsePayload `json:"data"`
 }
 
-func Test_HandleLogin(t *testing.T) {
+func TestHandleLogin(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()

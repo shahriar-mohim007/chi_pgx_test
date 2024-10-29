@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-func Test_CreateContactHandler_Success(t *testing.T) {
+func TestCreateContactHandler_Success(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
@@ -53,7 +53,7 @@ func Test_CreateContactHandler_Success(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Result().StatusCode)
 }
 
-func Test_CreateContactHandler_InvalidPayload(t *testing.T) {
+func TestCreateContactHandler_InvalidPayload(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()

@@ -23,7 +23,7 @@ type RegistrationResponsePayload struct {
 	Data    httpserver.RegistrationResponsePayload `json:"data"`
 }
 
-func Test_HandleRegisterUser(t *testing.T) {
+func TestHandleRegisterUser(t *testing.T) {
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
 	if err != nil {

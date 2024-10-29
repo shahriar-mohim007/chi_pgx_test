@@ -16,7 +16,7 @@ import (
 	"testing"
 )
 
-func Test_DeleteContactHandler(t *testing.T) {
+func TestDeleteContactHandler(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()

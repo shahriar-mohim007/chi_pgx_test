@@ -16,7 +16,7 @@ import (
 	"testing"
 )
 
-func TestDeleteContactHandler(t *testing.T) {
+func Test_DeleteContactHandler(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
@@ -37,6 +37,11 @@ func TestDeleteContactHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Invalid contact ID")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Contact Not Found", func(t *testing.T) {
@@ -50,6 +55,11 @@ func TestDeleteContactHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Contact Not found")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Deletion Failed", func(t *testing.T) {
@@ -63,6 +73,11 @@ func TestDeleteContactHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Internal server error")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Successful Deletion", func(t *testing.T) {
@@ -77,5 +92,11 @@ func TestDeleteContactHandler(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, w.Result().StatusCode)
 		assert.Empty(t, w.Body.String())
 		mockRepo.AssertCalled(t, "DeleteContactByID", mock.Anything, contactID)
+
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 }

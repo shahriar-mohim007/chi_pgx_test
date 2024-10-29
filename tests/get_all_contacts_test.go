@@ -39,7 +39,7 @@ type ContactResponse struct {
 	Country string `json:"country"`
 }
 
-func TestGetAllContactsHandler(t *testing.T) {
+func Test_GetAllContactsHandler(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
@@ -70,7 +70,6 @@ func TestGetAllContactsHandler(t *testing.T) {
 		}
 		totalCount := 1
 
-		// Setup expectations on the mock repository
 		mockRepo.On("GetAllContacts", mock.Anything, mock.AnythingOfType("uuid.UUID"), 10, 0).Return(contacts, nil)
 		mockRepo.On("GetContactsCount", mock.Anything, mock.AnythingOfType("uuid.UUID")).Return(totalCount, nil)
 
@@ -100,6 +99,10 @@ func TestGetAllContactsHandler(t *testing.T) {
 		assert.Equal(t, "", response.Data.Previous) // No previous URL since offset is 0
 
 		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Error Parsing UUID", func(t *testing.T) {
@@ -111,6 +114,11 @@ func TestGetAllContactsHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Invalid user ID")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("No Contacts Found", func(t *testing.T) {
@@ -124,5 +132,10 @@ func TestGetAllContactsHandler(t *testing.T) {
 		r.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 }

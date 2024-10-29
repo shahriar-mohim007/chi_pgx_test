@@ -18,7 +18,7 @@ import (
 	"testing"
 )
 
-func TestUpdateContactHandler(t *testing.T) {
+func Test_UpdateContactHandler(t *testing.T) {
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
 	if err != nil {
@@ -38,19 +38,30 @@ func TestUpdateContactHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Invalid contact ID")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Contact Not Found", func(t *testing.T) {
 		contactID, _ := uuid.NewV4()
 
 		mockRepo.On("GetContactByID", mock.Anything, contactID).Return(nil, sql.ErrNoRows)
-		req := httptest.NewRequest(http.MethodPatch, "/contacts/"+contactID.String(), nil)
+		reqBody := bytes.NewBuffer([]byte(`{"name": "Updated Name", "phone": "123-456-7890"}`))
+		req := httptest.NewRequest(http.MethodPatch, "/contacts/"+contactID.String(), reqBody)
 		w := httptest.NewRecorder()
 
 		r.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Contact Not found")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Update Successful", func(t *testing.T) {
@@ -78,6 +89,11 @@ func TestUpdateContactHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusCreated, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Contacts Updated successfully")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Update Failed", func(t *testing.T) {
@@ -105,6 +121,11 @@ func TestUpdateContactHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Internal server error")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Invalid Payload", func(t *testing.T) {
@@ -118,5 +139,11 @@ func TestUpdateContactHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "The provided information is invalid. Please recheck and try again.")
+
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 }

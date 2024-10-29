@@ -17,7 +17,7 @@ import (
 	"testing"
 )
 
-func TestGetContactByIDHandler(t *testing.T) {
+func Test_GetContactByIDHandler(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
@@ -44,7 +44,6 @@ func TestGetContactByIDHandler(t *testing.T) {
 			UserEmail: "mohim@example.com",
 		}
 
-		// Mock repository behavior to return ContactWithUserResponse type
 		mockRepo.On("GetContactByID", mock.Anything, contactID).Return(mockContact, nil)
 
 		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/contacts/%s", contactID), nil)
@@ -54,6 +53,10 @@ func TestGetContactByIDHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
 		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Invalid UUID", func(t *testing.T) {
@@ -64,12 +67,16 @@ func TestGetContactByIDHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Invalid contact ID")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Contact Not Found", func(t *testing.T) {
 		contactID := uuid.Must(uuid.NewV4())
 
-		// Mock repository behavior to simulate "contact not found"
 		mockRepo.On("GetContactByID", mock.Anything, contactID).Return(repository.Contact{}, errors.New("no contact found"))
 
 		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/contacts/%s", contactID), nil)
@@ -79,5 +86,10 @@ func TestGetContactByIDHandler(t *testing.T) {
 
 		assert.Equal(t, http.StatusNotFound, w.Result().StatusCode)
 		assert.Contains(t, w.Body.String(), "Contact Not found")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 }

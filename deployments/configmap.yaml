@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contacts-config
+data:
+  POSTGRES_USER: "user"
+  POSTGRES_PASSWORD: "password"
+  POSTGRES_DB: "contacts"
+  APPLICATION_PORT: "8080"
+  DATABASE_URL: "postgres://user:password@contacts-db:5432/contacts?sslmode=disable"  # Correct service name
+  SECRET_KEY: "my_jwt_secret"
+  LIMITER_RPS: "2"
+  LIMITER_BURST: "4"
+  LIMITER_ENABLED: "true"

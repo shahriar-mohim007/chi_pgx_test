@@ -16,7 +16,7 @@ import (
 	"testing"
 )
 
-func TestHandleActivateUser_Success(t *testing.T) {
+func Test_HandleActivateUser_Success(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
@@ -34,7 +34,6 @@ func TestHandleActivateUser_Success(t *testing.T) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, _ := token.SignedString([]byte(cfg.SecretKey))
 
-	// Mock the repository behavior for a successful user activation
 	mockRepo.On("ActivateUserByID", mock.Anything, claims.UserID).Return(nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/activate?token="+tokenString, nil)
@@ -48,7 +47,7 @@ func TestHandleActivateUser_Success(t *testing.T) {
 	mockRepo.AssertCalled(t, "ActivateUserByID", mock.Anything, claims.UserID)
 }
 
-func TestHandleActivateUser_InvalidToken(t *testing.T) {
+func Test_HandleActivateUser_InvalidToken(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
@@ -78,7 +77,7 @@ func TestHandleActivateUser_InvalidToken(t *testing.T) {
 	mockRepo.AssertNotCalled(t, "ActivateUserByID")
 }
 
-func TestHandleActivateUser_ActivationError(t *testing.T) {
+func Test_HandleActivateUser_ActivationError(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
@@ -96,7 +95,6 @@ func TestHandleActivateUser_ActivationError(t *testing.T) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, _ := token.SignedString([]byte(cfg.SecretKey))
 
-	// Mock the repository behavior to return an error
 	mockRepo.On("ActivateUserByID", mock.Anything, claims.UserID).Return(errors.New("db error"))
 
 	req := httptest.NewRequest(http.MethodGet, "/activate?token="+tokenString, nil)

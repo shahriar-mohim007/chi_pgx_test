@@ -67,6 +67,10 @@ var ContactCreated = utilis.ResponseState{
 	StatusCode: http.StatusCreated,
 	Message:    "Contacts Created successfully",
 }
+var UserNotFound = utilis.ResponseState{
+	StatusCode: http.StatusNotFound,
+	Message:    "User not found",
+}
 var NotFound = utilis.ResponseState{
 	StatusCode: http.StatusNotFound,
 	Message:    "Contact Not found",

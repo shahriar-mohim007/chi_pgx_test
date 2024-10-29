@@ -19,15 +19,11 @@ import (
 )
 
 type RegistrationResponsePayload struct {
-	Message string                   `json:"message"`
-	Data    RegistrationResponseData `json:"data"`
+	Message string                                 `json:"message"`
+	Data    httpserver.RegistrationResponsePayload `json:"data"`
 }
 
-type RegistrationResponseData struct {
-	ActivateToken string `json:"activate_token"`
-}
-
-func TestHandleRegisterUser(t *testing.T) {
+func Test_HandleRegisterUser(t *testing.T) {
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
 	if err != nil {
@@ -62,6 +58,10 @@ func TestHandleRegisterUser(t *testing.T) {
 		assert.NotEmpty(t, response.Data.ActivateToken)
 
 		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Invalid JSON", func(t *testing.T) {
@@ -70,6 +70,11 @@ func TestHandleRegisterUser(t *testing.T) {
 		r.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		assert.Contains(t, w.Body.String(), "The provided information is invalid. Please recheck and try again.")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("User Already Exists", func(t *testing.T) {
@@ -81,6 +86,11 @@ func TestHandleRegisterUser(t *testing.T) {
 		r.ServeHTTP(w, req)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		assert.Contains(t, w.Body.String(), "User Already Exist With this Email")
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 
 	t.Run("Failed to Create User", func(t *testing.T) {
@@ -94,5 +104,11 @@ func TestHandleRegisterUser(t *testing.T) {
 		r.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
+
+		mockRepo.AssertExpectations(t)
+		t.Cleanup(func() {
+			mockRepo.ExpectedCalls = nil
+			mockRepo.Calls = nil
+		})
 	})
 }

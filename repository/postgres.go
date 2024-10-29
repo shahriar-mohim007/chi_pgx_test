@@ -65,8 +65,15 @@ func (repo *PgxRepository) CreateUser(ctx context.Context, user *User) error {
 
 func (repo *PgxRepository) ActivateUserByID(ctx context.Context, userID uuid.UUID) error {
 	query := `UPDATE users SET is_active = TRUE WHERE id = $1`
-	_, err := repo.db.Exec(ctx, query, userID)
-	return err
+	result, err := repo.db.Exec(ctx, query, userID)
+	rowsAffected := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("user with ID %s not found", userID)
+	}
+	return nil
 }
 
 func (repo *PgxRepository) GetAllContacts(ctx context.Context, userID uuid.UUID, limit, offset int) ([]Contact, error) {

@@ -1,0 +1,11 @@
+# postgres-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: contacts-db
+spec:
+  selector:
+    app: contacts-db
+  ports:
+    - port: 5432
+      targetPort: 5432

@@ -6,6 +6,7 @@ import (
 	"go_chi_pgx/state"
 	utils "go_chi_pgx/utils"
 	"net/http"
+	"strings"
 )
 
 func HandleActivateUser(app *state.State) http.HandlerFunc {
@@ -17,7 +18,7 @@ func HandleActivateUser(app *state.State) http.HandlerFunc {
 			app.Logger.PrintError(fmt.Errorf("missing token"), map[string]string{
 				"context": "missing token",
 			})
-			_ = InternalError.WriteToResponse(w, nil)
+			_ = BadRequestError.WriteToResponse(w, nil)
 			return
 		}
 
@@ -39,6 +40,15 @@ func HandleActivateUser(app *state.State) http.HandlerFunc {
 		userID := claims.UserID
 		err = app.Repository.ActivateUserByID(ctx, userID)
 		if err != nil {
+			if strings.Contains(err.Error(), "not found") {
+
+				app.Logger.PrintError(err, map[string]string{
+					"context": "user not found during activation",
+				})
+				_ = UserNotFound.WriteToResponse(w, nil)
+				return
+			}
+
 			app.Logger.PrintError(err, map[string]string{
 				"context": "failed to activate user",
 			})
@@ -47,5 +57,6 @@ func HandleActivateUser(app *state.State) http.HandlerFunc {
 		}
 
 		_ = UserActivated.WriteToResponse(w, nil)
+		return
 	}
 }

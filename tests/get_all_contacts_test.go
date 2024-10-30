@@ -18,25 +18,8 @@ import (
 )
 
 type ContactsResponse struct {
-	Message string       `json:"message"`
-	Data    ContactsData `json:"data"`
-}
-
-type ContactsData struct {
-	TotalCount int               `json:"total_count"`
-	Next       string            `json:"next"`
-	Previous   string            `json:"previous"`
-	Contacts   []ContactResponse `json:"contacts"`
-}
-
-type ContactResponse struct {
-	ID      string `json:"id"`
-	Phone   string `json:"phone"`
-	Street  string `json:"street"`
-	City    string `json:"city"`
-	State   string `json:"state"`
-	ZipCode string `json:"zip_code"`
-	Country string `json:"country"`
+	Message string                      `json:"message"`
+	Data    httpserver.ContactsResponse `json:"data"`
 }
 
 func TestGetAllContactsHandler(t *testing.T) {

@@ -47,7 +47,7 @@ func TestHandleActivateUser_Success(t *testing.T) {
 	mockRepo.AssertCalled(t, "ActivateUserByID", mock.Anything, claims.UserID)
 }
 
-func Test_HandleActivateUser_InvalidToken(t *testing.T) {
+func TestHandleActivateUser_InvalidToken(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()
@@ -77,7 +77,7 @@ func Test_HandleActivateUser_InvalidToken(t *testing.T) {
 	mockRepo.AssertNotCalled(t, "ActivateUserByID")
 }
 
-func Test_HandleActivateUser_ActivationError(t *testing.T) {
+func TestHandleActivateUser_ActivationError(t *testing.T) {
 
 	logger := state.New(os.Stdout, state.LevelInfo)
 	cfg, err := state.NewConfig()

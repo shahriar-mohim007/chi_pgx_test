@@ -1,4 +1,3 @@
-# app-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,34 +16,6 @@ spec:
           image: mohim007/chi_pgx_test:latest
           ports:
             - containerPort: 8080
-          env:
-            - name: APPLICATION_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: contacts-config
-                  key: APPLICATION_PORT
-            - name: DATABASE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: contacts-config
-                  key: DATABASE_URL
-            - name: SECRET_KEY
-              valueFrom:
-                configMapKeyRef:
-                  name: contacts-config
-                  key: SECRET_KEY
-            - name: LIMITER_RPS
-              valueFrom:
-                configMapKeyRef:
-                  name: contacts-config
-                  key: LIMITER_RPS
-            - name: LIMITER_BURST
-              valueFrom:
-                configMapKeyRef:
-                  name: contacts-config
-                  key: LIMITER_BURST
-            - name: LIMITER_ENABLED
-              valueFrom:
-                configMapKeyRef:
-                  name: contacts-config
-                  key: LIMITER_ENABLED
+          envFrom:
+            - configMapRef:
+                name: contacts-config

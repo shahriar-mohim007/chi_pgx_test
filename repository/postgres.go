@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"strings"
 	"sync"
+	"time"
 )
 
 type PgxRepository struct {
@@ -23,26 +24,71 @@ var (
 )
 
 func NewPgRepository(databaseUrl string) (*PgxRepository, error) {
-	var err error
+	var onceErr error // Local error variable to avoid race conditions.
 	once.Do(func() {
-		db, dbErr := pgxpool.New(context.Background(), databaseUrl)
-		if dbErr != nil {
-			err = dbErr
-			log.Error().Err(dbErr).Msgf("Database Connection Error: %v", err)
+		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		// Define connection pool configuration
+		config, err := pgxpool.ParseConfig(databaseUrl)
+		if err != nil {
+			onceErr = fmt.Errorf("invalid database URL: %w", err)
+			log.Error().Err(err).Msg("Failed to parse database configuration")
 			return
 		}
 
-		if pingErr := db.Ping(context.Background()); pingErr != nil {
-			err = pingErr
-			log.Error().Err(pingErr).Msgf("Database Ping Error: %v:", err)
+		// Customize pool settings
+		config.MaxConns = 1000 // Maximum number of connections
+		config.MinConns = 2    // Minimum number of idle connections
+		config.MaxConnLifetime = 30 * time.Minute
+		config.MaxConnIdleTime = 5 * time.Second
+		config.HealthCheckPeriod = 1 * time.Minute
+
+		// Create connection pool
+		db, err := pgxpool.NewWithConfig(ctx, config)
+		if err != nil {
+			onceErr = fmt.Errorf("failed to create connection pool: %w", err)
+			log.Error().Err(err).Msg("Database Connection Error")
 			return
 		}
 
+		// Ping the database to ensure connectivity
+		if err := db.Ping(ctx); err != nil {
+			onceErr = fmt.Errorf("failed to ping database: %w", err)
+			log.Error().Err(err).Msg("Database Ping Error")
+			db.Close()
+			return
+		}
+
+		// Assign the initialized pool to the repository
 		repository = &PgxRepository{db: db}
+		log.Info().Msg("Database connection pool successfully initialized")
 	})
-	return repository, err
+	if repository != nil {
+		go monitorPoolStats(repository.db) // Use repository.db for monitoring
+	}
+	return repository, onceErr
 }
 
+// Close cleans up the database connection pool when the application shuts down.
+func (repo *PgxRepository) Close() {
+	if repo.db != nil {
+		repo.db.Close()
+		log.Info().Msg("Database connection pool closed")
+	}
+}
+
+func monitorPoolStats(pool *pgxpool.Pool) {
+	for {
+		stats := pool.Stat()
+
+		fmt.Printf("Max Connections: %d\n", stats.MaxConns())
+		fmt.Printf("Total Connections: %d\n", stats.TotalConns())
+		fmt.Printf("Idle Connections: %d\n", stats.IdleConns())
+		fmt.Printf("Acquired Connections: %d\n", stats.AcquiredConns())
+		time.Sleep(10 * time.Second) // Adjust interval as needed
+	}
+}
 func (repo *PgxRepository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	var user User
 	query := `SELECT id, name, email, password, is_active FROM users WHERE email = $1`

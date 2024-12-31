@@ -19,9 +19,9 @@ func Serve(app *state.State) error {
 		Addr:         fmt.Sprintf(":%d", app.Config.ApplicationPort),
 		Handler:      routes(app),
 		ErrorLog:     log.New(app.Logger, "", 0),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  5 * time.Second,
+		ReadTimeout:  1 * time.Second,
+		WriteTimeout: 3 * time.Second,
 	}
 
 	shutdownError := make(chan error)
@@ -46,6 +46,7 @@ func Serve(app *state.State) error {
 			"addr": srv.Addr,
 		})
 		app.Wg.Wait()
+		app.Repository.Close()
 		shutdownError <- nil
 
 	}()

@@ -17,4 +17,5 @@ type Repository interface {
 	PatchContactByID(ctx context.Context, contactID uuid.UUID, contact *Contact) error
 	DeleteContactByID(ctx context.Context, contactID uuid.UUID) error
 	GetContactsCount(ctx context.Context, userID uuid.UUID) (int, error)
+	Close()
 }

@@ -63,3 +63,7 @@ func (m *MockRepository) GetContactsCount(ctx context.Context, userID uuid.UUID)
 	args := m.Called(ctx, userID)
 	return args.Int(0), args.Error(1)
 }
+
+func (m *MockRepository) Close() {
+
+}
